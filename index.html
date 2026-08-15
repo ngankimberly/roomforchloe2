@@ -1,479 +1,270 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Theo dõi phòng trọ</title>
-<style>
-  :root{
-    --bg:#FAF7F2;
-    --card:#FFFFFF;
-    --ink:#2B241E;
-    --ink-soft:#6B5F54;
-    --ink-faint:#A69B8D;
-    --line:#E7DFD3;
-    --accent:#C05A32;
-    --accent-soft:#F3DCCF;
-    --good:#3F7A5C;
-    --good-soft:#DDEEE3;
-    --warn:#B98A1E;
-    --warn-soft:#F6E9CB;
-    --bad:#B33F3F;
-    --bad-soft:#F5DEDE;
-    --radius:14px;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-    background:var(--bg);
-    color:var(--ink);
-    padding:28px 16px 60px;
-  }
-  .wrap{max-width:760px;margin:0 auto;}
-  h1{
-    font-size:26px;
-    font-weight:700;
-    margin:0 0 4px;
-    letter-spacing:-0.3px;
-  }
-  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 22px;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Quản Lý & Đánh Giá Phòng Trọ</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1e293b; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h1 { text-align: center; color: #0f172a; margin-bottom: 24px; }
+        
+        .form-card, .room-card { background: var(--card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        
+        .image-input-group { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; background: #f1f5f9; padding: 12px; border-radius: 6px; }
+        .image-input-options { display: flex; gap: 10px; flex-wrap: wrap; }
+        .image-input-options input { flex: 1; }
+        .thumb-preview-container { text-align: center; margin-top: 5px; }
+        .thumb-preview { max-height: 120px; border-radius: 6px; display: none; margin: 0 auto; border: 1px dashed var(--border); }
 
-  .toolbar{
-    display:flex;
-    gap:10px;
-    align-items:center;
-    margin-bottom:16px;
-    flex-wrap:wrap;
-  }
-  select, input[type=text], input[type=number], input[type=date], textarea{
-    font-family:inherit;
-    font-size:14px;
-    border:1px solid var(--line);
-    border-radius:9px;
-    padding:9px 11px;
-    background:#fff;
-    color:var(--ink);
-  }
-  select:focus, input:focus, textarea:focus{outline:2px solid var(--accent-soft);border-color:var(--accent);}
-  .filter-select{min-width:150px;}
-  .btn{
-    font-family:inherit;
-    font-size:14px;
-    font-weight:600;
-    border:none;
-    border-radius:9px;
-    padding:10px 16px;
-    cursor:pointer;
-    background:var(--accent);
-    color:#fff;
-  }
-  .btn:hover{background:#a94a26;}
-  .btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--line);}
-  .btn.secondary:hover{background:#F3EEE5;}
-  .btn.small{padding:6px 10px;font-size:12px;}
-  .btn.danger-outline{background:#fff;color:var(--bad);border:1px solid var(--bad-soft);}
-  .btn.danger-outline:hover{background:var(--bad-soft);}
-
-  .count-row{color:var(--ink-soft);font-size:13px;margin-bottom:14px;}
-
-  .room-list{display:flex;flex-direction:column;gap:12px;}
-  .room-card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:16px 18px;
-  }
-  .room-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
-  .room-name{font-size:16px;font-weight:700;margin:0 0 3px;}
-  .room-meta{font-size:13px;color:var(--ink-soft);}
-  .stars{font-size:15px;letter-spacing:1px;color:var(--warn);white-space:nowrap;}
-  .stars .empty{color:var(--line);}
-
-  .badge{
-    display:inline-block;
-    font-size:11.5px;
-    font-weight:700;
-    padding:3px 9px;
-    border-radius:999px;
-    margin-top:6px;
-  }
-  .badge.chua-xem{background:#EFEAE1;color:var(--ink-soft);}
-  .badge.da-hen{background:var(--warn-soft);color:var(--warn);}
-  .badge.da-xem{background:#E4EAF5;color:#3A5A9C;}
-  .badge.da-chon{background:var(--good-soft);color:var(--good);}
-  .badge.loai{background:var(--bad-soft);color:var(--bad);}
-
-  .pros-cons{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;}
-  .pc-col{flex:1;min-width:180px;font-size:13px;}
-  .pc-col .label{font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-faint);margin-bottom:3px;}
-  .pc-col.pros .label{color:var(--good);}
-  .pc-col.cons .label{color:var(--bad);}
-  .pc-text{color:var(--ink);white-space:pre-wrap;line-height:1.5;}
-
-  .note{margin-top:10px;font-size:13px;color:var(--ink-soft);white-space:pre-wrap;line-height:1.5;}
-  .link-row{margin-top:10px;font-size:13px;}
-  .link-row a{color:var(--accent);word-break:break-all;}
-
-  .room-actions{display:flex;gap:8px;margin-top:14px;}
-
-  .empty-state{
-    text-align:center;
-    padding:50px 20px;
-    color:var(--ink-faint);
-    border:1px dashed var(--line);
-    border-radius:var(--radius);
-    font-size:14px;
-  }
-
-  .modal-overlay{
-    display:none;
-    position:fixed;inset:0;
-    background:rgba(43,36,30,0.45);
-    align-items:flex-start;
-    justify-content:center;
-    padding:30px 16px;
-    overflow-y:auto;
-    z-index:50;
-  }
-  .modal-overlay.open{display:flex;}
-  .modal{
-    background:#fff;
-    border-radius:16px;
-    padding:22px 22px 20px;
-    width:100%;
-    max-width:520px;
-  }
-  .modal h2{font-size:18px;margin:0 0 16px;}
-  .field{margin-bottom:12px;}
-  .field label{display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:5px;}
-  .field input, .field select, .field textarea{width:100%;}
-  .field textarea{min-height:56px;resize:vertical;}
-  .field-row{display:flex;gap:10px;}
-  .field-row .field{flex:1;}
-  .star-picker{font-size:24px;cursor:pointer;color:var(--line);}
-  .star-picker .star{padding-right:2px;}
-  .star-picker .star.on{color:var(--warn);}
-  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;}
-</style>
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        button { background: var(--primary); color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        button:hover { opacity: 0.9; }
+        .btn-secondary { background: #64748b; }
+        .btn-warning { background: #f59e0b; }
+        .btn-danger { background: #ef4444; }
+        
+        .filters { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        
+        .room-card { display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
+        .status-badge { position: absolute; top: 12px; right: 12px; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; z-index: 2; }
+        .status-Chưa\ xem { background: #e2e8f0; color: #475569; }
+        .status-Sẽ\ xem { background: #fef08a; color: #854d0e; }
+        .status-Đã\ xem { background: #bbf7d0; color: #166534; }
+        .status-Loại { background: #fecaca; color: #991b1b; }
+        
+        .img-preview { width: 100%; height: 190px; object-fit: cover; border-radius: 8px; margin: 10px 0; background: #e2e8f0; }
+        .score { font-size: 18px; font-weight: bold; color: #d97706; margin: 8px 0; }
+        .actions { display: flex; gap: 8px; margin-top: 10px; }
+        .actions button { flex: 1; padding: 6px 10px; font-size: 13px; }
+    </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Theo dõi phòng trọ</h1>
-  <p class="sub" id="subline">Đang tải...</p>
 
-  <div class="toolbar">
-    <button class="btn" id="add-btn">+ Thêm phòng</button>
-    <select class="filter-select" id="filter-status">
-      <option value="all">Tất cả trạng thái</option>
-      <option value="chua-xem">Chưa xem</option>
-      <option value="da-hen">Đã hẹn xem</option>
-      <option value="da-xem">Đã xem</option>
-      <option value="da-chon">Đã chọn</option>
-      <option value="loai">Loại</option>
-    </select>
-    <select class="filter-select" id="sort-by">
-      <option value="rating-desc">Đánh giá cao → thấp</option>
-      <option value="price-asc">Giá thấp → cao</option>
-      <option value="price-desc">Giá cao → thấp</option>
-      <option value="newest">Mới thêm trước</option>
-    </select>
-  </div>
+<div class="container">
+    <h1>📌 Danh Sách So Sánh & Quản Lý Phòng Trọ</h1>
 
-  <div class="count-row" id="count-row"></div>
-  <div class="room-list" id="room-list"></div>
-</div>
+    <!-- Form Thêm / Sửa Phòng -->
+    <div class="form-card">
+        <h3 id="formTitle">Thêm Phòng Trọ Mới</h3>
+        <form id="roomForm">
+            <input type="hidden" id="editId">
+            <input type="hidden" id="thumbnailData"> <!-- Lưu base64 hoặc URL ảnh -->
 
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal">
-    <h2 id="modal-title">Thêm phòng trọ</h2>
-    <input type="hidden" id="edit-id">
-    <div class="field">
-      <label for="f-name">Tên / địa chỉ phòng</label>
-      <input type="text" id="f-name" placeholder="VD: Phòng trọ Q7, hẻm 123 Nguyễn Văn Linh">
+            <div class="form-grid">
+                <input type="text" id="address" placeholder="Địa chỉ / Tên khu vực *" required>
+                <input type="number" id="price" placeholder="Giá thuê (Triệu/tháng) *" step="0.1" required>
+                <input type="text" id="contact" placeholder="Tên & SĐT Môi giới">
+                <select id="status">
+                    <option value="Chưa xem">Trạng thái: Chưa xem</option>
+                    <option value="Sẽ xem">Trạng thái: Sẽ xem</option>
+                    <option value="Đã xem">Trạng thái: Đã xem</option>
+                    <option value="Loại">Trạng thái: Loại</option>
+                </select>
+                <input type="number" id="score" placeholder="Điểm đánh giá (1 - 10)" min="1" max="10">
+
+                <!-- Khu vực upload/nhập Thumbnail -->
+                <div class="image-input-group">
+                    <label style="font-weight: 600; font-size: 13px;">🖼️ Chọn Thumbnail Phòng Trọ:</label>
+                    <div class="image-input-options">
+                        <input type="file" id="fileInput" accept="image/*" onchange="handleFileUpload(event)">
+                        <input type="url" id="imgUrl" placeholder="Hoặc dán Link ảnh web tại đây" onchange="handleUrlInput(this.value)">
+                    </div>
+                    <div class="thumb-preview-container">
+                        <img id="formThumbPreview" class="thumb-preview" alt="Xem trước thumbnail">
+                    </div>
+                </div>
+            </div>
+
+            <textarea id="notes" placeholder="Nhận xét chi tiết (Nắng/gió, an ninh, giặt phơi, chi phí điện nước, cọc,...)" rows="2" style="margin-top: 10px;"></textarea>
+            
+            <div class="btn-group">
+                <button type="submit" id="submitBtn">Lưu Phòng Trọ</button>
+                <button type="button" id="cancelBtn" class="btn-secondary" style="display: none;" onclick="resetForm()">Hủy Chỉnh Sửa</button>
+            </div>
+        </form>
     </div>
-    <div class="field-row">
-      <div class="field">
-        <label for="f-price">Giá thuê (VNĐ/tháng)</label>
-        <input type="number" id="f-price" placeholder="3000000">
-      </div>
-      <div class="field">
-        <label for="f-area">Diện tích (m²)</label>
-        <input type="number" id="f-area" placeholder="20">
-      </div>
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <label for="f-status">Trạng thái</label>
-        <select id="f-status">
-          <option value="chua-xem">Chưa xem</option>
-          <option value="da-hen">Đã hẹn xem</option>
-          <option value="da-xem">Đã xem</option>
-          <option value="da-chon">Đã chọn</option>
-          <option value="loai">Loại</option>
+
+    <!-- Bộ Lọc -->
+    <div class="filters">
+        <select id="filterStatus" onchange="renderRooms()">
+            <option value="All">Tất cả trạng thái</option>
+            <option value="Sẽ xem">Sẽ đi xem</option>
+            <option value="Đã xem">Đã xem</option>
+            <option value="Chưa xem">Chưa xem</option>
+            <option value="Loại">Đã loại</option>
         </select>
-      </div>
-      <div class="field">
-        <label for="f-date">Ngày xem (nếu có)</label>
-        <input type="date" id="f-date">
-      </div>
+        <select id="sortBy" onchange="renderRooms()">
+            <option value="default">Sắp xếp: Mới nhất</option>
+            <option value="priceAsc">Giá: Thấp đến Cao</option>
+            <option value="scoreDesc">Điểm: Cao đến Thấp</option>
+        </select>
     </div>
-    <div class="field">
-      <label>Đánh giá</label>
-      <div class="star-picker" id="star-picker">
-        <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span><span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
-      </div>
-    </div>
-    <div class="field">
-      <label for="f-link">Link ảnh / video môi giới gửi</label>
-      <input type="text" id="f-link" placeholder="Link Zalo, Drive, Facebook...">
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <label for="f-pros">Ưu điểm</label>
-        <textarea id="f-pros" placeholder="Gần chỗ làm, có ban công, an ninh tốt..."></textarea>
-      </div>
-      <div class="field">
-        <label for="f-cons">Nhược điểm</label>
-        <textarea id="f-cons" placeholder="Hơi ồn, không có thang máy..."></textarea>
-      </div>
-    </div>
-    <div class="field">
-      <label for="f-note">Nhận xét khác</label>
-      <textarea id="f-note" placeholder="Cảm nhận sau khi xem phòng, câu hỏi cần hỏi chủ nhà..."></textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="btn secondary" id="cancel-btn">Hủy</button>
-      <button class="btn" id="save-btn">Lưu</button>
-    </div>
-  </div>
+
+    <!-- Danh Sách Phòng -->
+    <div class="room-grid" id="roomGrid"></div>
 </div>
 
 <script>
-const STATUS_LABEL = {
-  'chua-xem':'Chưa xem','da-hen':'Đã hẹn xem','da-xem':'Đã xem','da-chon':'Đã chọn','loai':'Loại'
-};
-let rooms = [];
-let currentRating = 0;
+    let rooms = JSON.parse(localStorage.getItem('my_rental_rooms')) || [];
+    const defaultPlaceholder = 'https://via.placeholder.com/320x190?text=Chua+Co+Thumbnail';
 
-async function loadRooms(){
-  document.getElementById('subline').textContent = 'Đang tải dữ liệu...';
-  try{
-    const sharedRes = await window.storage.get('rooms', true);
-    rooms = sharedRes && sharedRes.value ? JSON.parse(sharedRes.value) : [];
-  }catch(e){
-    rooms = [];
-  }
-  if(rooms.length === 0){
-    try{
-      const personalRes = await window.storage.get('rooms', false);
-      if(personalRes && personalRes.value){
-        const oldRooms = JSON.parse(personalRes.value);
-        if(oldRooms.length > 0){
-          rooms = oldRooms;
-          await saveRooms();
+    const roomForm = document.getElementById('roomForm');
+    const formTitle = document.getElementById('formTitle');
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const editIdInput = document.getElementById('editId');
+    const thumbnailDataInput = document.getElementById('thumbnailData');
+    const formThumbPreview = document.getElementById('formThumbPreview');
+
+    // Xử lý upload file ảnh trực tiếp
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                setThumbnailPreview(e.target.result);
+                document.getElementById('imgUrl').value = ''; 
+            };
+            reader.readAsDataURL(file);
         }
-      }
-    }catch(e){
-      // không có dữ liệu cũ ở kho riêng, bỏ qua
     }
-  }
-  document.getElementById('subline').textContent = 'Danh sách dùng chung — ai mở file này cũng thấy và sửa chung một danh sách.';
-  render();
-}
 
-async function saveRooms(){
-  try{
-    await window.storage.set('rooms', JSON.stringify(rooms), true);
-  }catch(e){
-    console.error('Lưu thất bại', e);
-  }
-}
+    // Xử lý dán URL ảnh
+    function handleUrlInput(url) {
+        if (url) {
+            setThumbnailPreview(url);
+            document.getElementById('fileInput').value = ''; 
+        }
+    }
 
-function fmtPrice(v){
-  if(!v && v!==0) return '';
-  return Number(v).toLocaleString('vi-VN') + ' đ';
-}
+    function setThumbnailPreview(src) {
+        thumbnailDataInput.value = src;
+        formThumbPreview.src = src;
+        formThumbPreview.style.display = 'block';
+    }
 
-function starString(n){
-  let s = '';
-  for(let i=1;i<=5;i++){
-    s += i<=n ? '★' : '<span class="empty">★</span>';
-  }
-  return s;
-}
+    // Xử lý Thêm mới hoặc Cập nhật phòng
+    roomForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const editId = editIdInput.value;
+        const roomData = {
+            address: document.getElementById('address').value,
+            price: parseFloat(document.getElementById('price').value),
+            contact: document.getElementById('contact').value,
+            imgUrl: thumbnailDataInput.value || defaultPlaceholder,
+            status: document.getElementById('status').value,
+            score: document.getElementById('score').value || 'N/A',
+            notes: document.getElementById('notes').value
+        };
 
-function render(){
-  const statusFilter = document.getElementById('filter-status').value;
-  const sortBy = document.getElementById('sort-by').value;
-  let list = rooms.filter(r => statusFilter==='all' || r.status===statusFilter);
+        if (editId) {
+            const index = rooms.findIndex(r => r.id == editId);
+            if (index !== -1) {
+                rooms[index] = { ...rooms[index], ...roomData };
+            }
+        } else {
+            const newRoom = { id: Date.now(), ...roomData };
+            rooms.unshift(newRoom);
+        }
 
-  list = list.slice().sort((a,b)=>{
-    if(sortBy==='rating-desc') return (b.rating||0)-(a.rating||0);
-    if(sortBy==='price-asc') return (a.price||0)-(b.price||0);
-    if(sortBy==='price-desc') return (b.price||0)-(a.price||0);
-    if(sortBy==='newest') return (b.createdAt||0)-(a.createdAt||0);
-    return 0;
-  });
+        saveAndRender();
+        resetForm();
+    });
 
-  document.getElementById('count-row').textContent = `${list.length} / ${rooms.length} phòng`;
+    // Nạp dữ liệu phòng vào form để chỉnh sửa
+    function editRoom(id) {
+        const room = rooms.find(r => r.id === id);
+        if (!room) return;
 
-  const container = document.getElementById('room-list');
-  container.innerHTML = '';
+        editIdInput.value = room.id;
+        document.getElementById('address').value = room.address;
+        document.getElementById('price').value = room.price;
+        document.getElementById('contact').value = room.contact || '';
+        document.getElementById('status').value = room.status;
+        document.getElementById('score').value = room.score === 'N/A' ? '' : room.score;
+        document.getElementById('notes').value = room.notes || '';
 
-  if(list.length===0){
-    container.innerHTML = '<div class="empty-state">Chưa có phòng nào. Nhấn "Thêm phòng" để bắt đầu ghi lại.</div>';
-    return;
-  }
+        if (room.imgUrl && room.imgUrl !== defaultPlaceholder) {
+            setThumbnailPreview(room.imgUrl);
+            if (!room.imgUrl.startsWith('data:image')) {
+                document.getElementById('imgUrl').value = room.imgUrl;
+            }
+        } else {
+            clearThumbnailPreview();
+        }
 
-  list.forEach(r=>{
-    const card = document.createElement('div');
-    card.className = 'room-card';
-    const metaBits = [];
-    if(r.price) metaBits.push(fmtPrice(r.price));
-    if(r.area) metaBits.push(r.area + ' m²');
-    if(r.date) metaBits.push('Xem: ' + r.date);
+        formTitle.innerText = "✏️ Chỉnh Sửa Thông Tin Phòng Trọ";
+        submitBtn.innerText = "Cập Nhật Thông Tin";
+        cancelBtn.style.display = "inline-block";
 
-    card.innerHTML = `
-      <div class="room-top">
-        <div>
-          <p class="room-name">${escapeHtml(r.name || '(Chưa đặt tên)')}</p>
-          <div class="room-meta">${metaBits.join(' · ')}</div>
-          <span class="badge ${r.status}">${STATUS_LABEL[r.status]}</span>
-        </div>
-        <div class="stars">${starString(r.rating||0)}</div>
-      </div>
-      ${(r.pros||r.cons) ? `<div class="pros-cons">
-        ${r.pros ? `<div class="pc-col pros"><div class="label">Ưu điểm</div><div class="pc-text">${escapeHtml(r.pros)}</div></div>`:''}
-        ${r.cons ? `<div class="pc-col cons"><div class="label">Nhược điểm</div><div class="pc-text">${escapeHtml(r.cons)}</div></div>`:''}
-      </div>` : ''}
-      ${r.note ? `<div class="note">${escapeHtml(r.note)}</div>` : ''}
-      ${r.link ? `<div class="link-row">🔗 <a href="${escapeAttr(r.link)}" target="_blank" rel="noopener">${escapeHtml(r.link)}</a></div>` : ''}
-      <div class="room-actions">
-        <button class="btn secondary small" data-edit="${r.id}">Sửa</button>
-        <button class="btn danger-outline small" data-del="${r.id}">Xóa</button>
-      </div>
-    `;
-    container.appendChild(card);
-  });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-  container.querySelectorAll('[data-edit]').forEach(btn=>{
-    btn.addEventListener('click', ()=> openModal(btn.getAttribute('data-edit')));
-  });
-  container.querySelectorAll('[data-del]').forEach(btn=>{
-    btn.addEventListener('click', ()=> deleteRoom(btn.getAttribute('data-del')));
-  });
-}
+    function clearThumbnailPreview() {
+        thumbnailDataInput.value = '';
+        formThumbPreview.src = '';
+        formThumbPreview.style.display = 'none';
+        document.getElementById('fileInput').value = '';
+        document.getElementById('imgUrl').value = '';
+    }
 
-function escapeHtml(s){
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
-function escapeAttr(s){
-  return s.replace(/"/g,'&quot;');
-}
+    function resetForm() {
+        editIdInput.value = '';
+        roomForm.reset();
+        clearThumbnailPreview();
+        formTitle.innerText = "Thêm Phòng Trọ Mới";
+        submitBtn.innerText = "Lưu Phòng Trọ";
+        cancelBtn.style.display = "none";
+    }
 
-function openModal(id){
-  document.getElementById('modal-title').textContent = id ? 'Sửa thông tin phòng' : 'Thêm phòng trọ';
-  document.getElementById('edit-id').value = id || '';
-  if(id){
-    const r = rooms.find(x=>x.id===id);
-    document.getElementById('f-name').value = r.name||'';
-    document.getElementById('f-price').value = r.price||'';
-    document.getElementById('f-area').value = r.area||'';
-    document.getElementById('f-status').value = r.status||'chua-xem';
-    document.getElementById('f-date').value = r.date||'';
-    document.getElementById('f-link').value = r.link||'';
-    document.getElementById('f-pros').value = r.pros||'';
-    document.getElementById('f-cons').value = r.cons||'';
-    document.getElementById('f-note').value = r.note||'';
-    currentRating = r.rating||0;
-  }else{
-    document.getElementById('f-name').value = '';
-    document.getElementById('f-price').value = '';
-    document.getElementById('f-area').value = '';
-    document.getElementById('f-status').value = 'chua-xem';
-    document.getElementById('f-date').value = '';
-    document.getElementById('f-link').value = '';
-    document.getElementById('f-pros').value = '';
-    document.getElementById('f-cons').value = '';
-    document.getElementById('f-note').value = '';
-    currentRating = 0;
-  }
-  renderStars();
-  document.getElementById('modal-overlay').classList.add('open');
-}
+    function saveAndRender() {
+        localStorage.setItem('my_rental_rooms', JSON.stringify(rooms));
+        renderRooms();
+    }
 
-function closeModal(){
-  document.getElementById('modal-overlay').classList.remove('open');
-}
+    function deleteRoom(id) {
+        if(confirm('Bạn có chắc muốn xóa phòng này?')) {
+            rooms = rooms.filter(r => r.id !== id);
+            saveAndRender();
+            if (editIdInput.value == id) resetForm();
+        }
+    }
 
-function renderStars(){
-  document.querySelectorAll('#star-picker .star').forEach(s=>{
-    const v = Number(s.getAttribute('data-v'));
-    s.classList.toggle('on', v<=currentRating);
-  });
-}
+    function renderRooms() {
+        const grid = document.getElementById('roomGrid');
+        const filter = document.getElementById('filterStatus').value;
+        const sort = document.getElementById('sortBy').value;
 
-document.getElementById('star-picker').addEventListener('click', (e)=>{
-  if(e.target.classList.contains('star')){
-    currentRating = Number(e.target.getAttribute('data-v'));
-    renderStars();
-  }
-});
+        let filtered = rooms.filter(r => filter === 'All' || r.status === filter);
 
-async function deleteRoom(id){
-  rooms = rooms.filter(r=>r.id!==id);
-  await saveRooms();
-  render();
-}
+        if (sort === 'priceAsc') filtered.sort((a, b) => a.price - b.price);
+        if (sort === 'scoreDesc') filtered.sort((a, b) => (b.score || 0) - (a.score || 0));
 
-document.getElementById('add-btn').addEventListener('click', ()=> openModal(null));
-document.getElementById('cancel-btn').addEventListener('click', closeModal);
-document.getElementById('modal-overlay').addEventListener('click', (e)=>{
-  if(e.target.id==='modal-overlay') closeModal();
-});
+        grid.innerHTML = filtered.map(r => `
+            <div class="room-card">
+                <span class="status-badge status-${r.status}">${r.status}</span>
+                <img src="${r.imgUrl}" class="img-preview" alt="Thumbnail phòng trọ" onerror="this.src='${defaultPlaceholder}'">
+                <h3>${r.address}</h3>
+                <div style="font-size: 18px; font-weight: bold; color: #2563eb;">${r.price} Triệu/tháng</div>
+                <p><strong>Môi giới:</strong> ${r.contact || 'Chưa lưu'}</p>
+                <div class="score">⭐ Điểm: ${r.score}/10</div>
+                <p><strong>Ghi chú:</strong> ${r.notes || 'Chưa có ghi chú'}</p>
+                
+                <div class="actions">
+                    <button class="btn-warning" onclick="editRoom(${r.id})">✏️ Sửa</button>
+                    <button class="btn-danger" onclick="deleteRoom(${r.id})">🗑️ Xóa</button>
+                </div>
+            </div>
+        `).join('');
+    }
 
-document.getElementById('save-btn').addEventListener('click', async ()=>{
-  const nameVal = document.getElementById('f-name').value.trim();
-  if(!nameVal){
-    document.getElementById('f-name').focus();
-    document.getElementById('f-name').style.borderColor = 'var(--bad)';
-    return;
-  }
-  document.getElementById('f-name').style.borderColor = '';
-
-  const id = document.getElementById('edit-id').value;
-  const data = {
-    id: id || 'r' + Date.now(),
-    name: nameVal,
-    price: Number(document.getElementById('f-price').value) || 0,
-    area: Number(document.getElementById('f-area').value) || 0,
-    status: document.getElementById('f-status').value,
-    date: document.getElementById('f-date').value,
-    link: document.getElementById('f-link').value.trim(),
-    pros: document.getElementById('f-pros').value.trim(),
-    cons: document.getElementById('f-cons').value.trim(),
-    note: document.getElementById('f-note').value.trim(),
-    rating: currentRating,
-    createdAt: id ? (rooms.find(r=>r.id===id)||{}).createdAt || Date.now() : Date.now()
-  };
-
-  if(id){
-    rooms = rooms.map(r => r.id===id ? data : r);
-  }else{
-    rooms.push(data);
-  }
-  await saveRooms();
-  closeModal();
-  render();
-});
-
-document.getElementById('filter-status').addEventListener('change', render);
-document.getElementById('sort-by').addEventListener('change', render);
-
-loadRooms();
+    renderRooms();
 </script>
 </body>
 </html>
